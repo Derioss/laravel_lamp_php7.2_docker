@@ -1,0 +1,54 @@
+# Centos Pull
+FROM centos
+
+# Take proxy env if it's configured in docker
+#ENV http_proxy <HTTP_PROXY>
+#ENV https_proxy <HTTPS_PROXY>
+
+MAINTAINER derioss https://github.com/Derioss
+
+# Update image
+RUN yum -y install epel-release && \
+    yum install -y php-mcrypt.x86_64 && \
+    yum install -y vim && \
+    yum install -y yum-utils && \
+    yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
+    yum-config-manager --enable remi-php72 && \
+    yum install -y git && \
+    yum install -y php-cli && \
+    yum install -y php-gd && \
+    yum install -y php-curl && \
+    yum install -y php-mysql && \
+    yum install -y php-ldap && \
+    yum install -y php-xml && \
+    yum install -y php-mbstring && \
+    yum install -y php-zip && \
+    yum install -y httpd && \
+    yum install -y wget && \
+    yum install -y net-tools && \
+    yum install -y unzip && \
+    yum clean all
+
+
+# composer install
+RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
+&& curl -o /tmp/composer-setup.sig https://composer.github.io/installer.sig \
+# Make sure we're installing what we think we're installing!
+&& php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" \
+&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --snapshot \
+&& rm -f /tmp/composer-setup.*
+
+WORKDIR /var/www/laravel
+RUN systemctl enable httpd
+
+# install laravel
+ADD laravel/ /var/www/laravel
+RUN composer install
+
+# Expose port
+EXPOSE 80
+EXPOSE 22
+
+# apache right
+RUN chown -R apache: /var/www/laravel && \
+    chmod -R 755 /var/www/laravel
