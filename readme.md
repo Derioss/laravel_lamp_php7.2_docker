@@ -22,7 +22,7 @@ docker build -t laravel .
 ```
 ```
 # launch container
-docker run --name=laravel --restart always -v yourpath:/opt/web2py/applications/designer/databases -d -p 80:8080 laravel
+docker run --name=laravel --restart always -v yourpath:/var/www/ -d -p 80:8080 laravel
 ```
 ```
 docker start laravel
