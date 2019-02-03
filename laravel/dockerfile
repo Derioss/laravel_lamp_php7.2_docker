@@ -38,17 +38,24 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --snapshot \
 && rm -f /tmp/composer-setup.*
 
-WORKDIR /var/www/laravel
+WORKDIR /var/www/html/laravel
 RUN systemctl enable httpd
 
 # install laravel
-ADD laravel/ /var/www/laravel
-RUN composer install
+ADD laravel/ /var/www/html/laravel
+RUN   cp  .env.example .env && \
+      composer install && \
+      php artisan key:generate
 
 # Expose port
 EXPOSE 80
-EXPOSE 22
+
+
 
 # apache right
-RUN chown -R apache: /var/www/laravel && \
-    chmod -R 755 /var/www/laravel
+RUN chown -R apache: /var/www/html && \
+    chmod -R 755 /var/www/html
+
+VOLUME ["/var/www/html", "/etc/httpd/conf", "/etc/httpd/conf.d"]
+
+CMD /usr/sbin/httpd -D FOREGROUND

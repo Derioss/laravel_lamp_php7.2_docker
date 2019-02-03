@@ -1,0 +1,26 @@
+version: '3.3'
+
+services:
+   db:
+    container_name: db
+    image: mariadb
+    volumes:
+      - ./db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: laravel
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: laravel
+
+   laravel:
+    image: laravel
+    container_name: laravel
+    ports:
+      - "8080:80"
+    volumes:
+       - ./www:/var/www/html
+       - ./apache/conf:/etc/httpd/conf
+       - ./apache/conf.d:/etc/httpd/conf.d
+
+    restart: always
