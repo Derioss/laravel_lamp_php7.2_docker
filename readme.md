@@ -1,4 +1,4 @@
-# laravel_lamp_php7.2_docker (IN PROGRESS)
+# laravel_lamp_php7.2_docker
 
 ### description
 
