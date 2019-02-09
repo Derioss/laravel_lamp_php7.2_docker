@@ -1,20 +1,27 @@
 # Centos Pull
 FROM centos
 
+VOLUME /home/apache
+
 # Take proxy env if it's configured in docker
 #ENV http_proxy <HTTP_PROXY>
 #ENV https_proxy <HTTPS_PROXY>
 
 MAINTAINER derioss https://github.com/Derioss
 
+
+
 # Update image
-RUN yum -y install epel-release && \
-    yum install -y php-mcrypt.x86_64 && \
+RUN useradd -u 1000 apache && \
+    yum -y install epel-release && \
     yum install -y vim && \
     yum install -y yum-utils && \
+    yum install -y httpd && \
     yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm && \
     yum-config-manager --enable remi-php72 && \
     yum install -y git && \
+    yum install -y php && \
+    yum install -y php-mcrypt.x86_64 && \
     yum install -y php-cli && \
     yum install -y php-gd && \
     yum install -y php-curl && \
@@ -23,7 +30,6 @@ RUN yum -y install epel-release && \
     yum install -y php-xml && \
     yum install -y php-mbstring && \
     yum install -y php-zip && \
-    yum install -y httpd && \
     yum install -y wget && \
     yum install -y net-tools && \
     yum install -y unzip && \
@@ -38,24 +44,29 @@ RUN curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 && php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --snapshot \
 && rm -f /tmp/composer-setup.*
 
-WORKDIR /var/www/html/laravel
+
 RUN systemctl enable httpd
 
+
+WORKDIR /tmp/laravel
 # install laravel
-ADD laravel/ /var/www/html/laravel
-RUN   cp  .env.example .env && \
-      composer install && \
-      php artisan key:generate
+COPY laravel/ /tmp/laravel
+RUN  composer install
+
+COPY laravel.conf /etc/httpd/conf.d/
 
 # Expose port
 EXPOSE 80
 
 
-
 # apache right
-RUN chown -R apache: /var/www/html && \
-    chmod -R 755 /var/www/html
 
-VOLUME ["/var/www/html", "/etc/httpd/conf", "/etc/httpd/conf.d"]
 
-CMD /usr/sbin/httpd -D FOREGROUND
+
+COPY ./docker-entrypoint.sh ../
+RUN chmod  +x ../docker-entrypoint.sh && \
+    chown -R apache: ../docker-entrypoint.sh && \
+    chown -R apache: /tmp/laravel && \
+    chmod 644 /etc/httpd/conf/httpd.conf
+
+ENTRYPOINT ["/tmp/docker-entrypoint.sh"]

@@ -21,14 +21,22 @@ cd laravel
 docker build -t laravel .
 ```
 ```
+## for look your's uid
+awk -F: '{printf "%s:%s\n",$1,$3}' /etc/passwd
+############
+chown -R user: ./apache ## owner uid 1000
+chown -R mysql: ./db_data ## owner uid 27 (mysql)
+
+```
+```
 # launch container
-docker run --name=laravel --restart always -v yourpath:/var/www/ -d -p 80:8080 laravel
+docker-compose up
 ```
 ```
 docker start laravel
 ```
 
- 
+
+
+
 go in http://yoururl/ and enjoy
-
-
