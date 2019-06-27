@@ -39,7 +39,7 @@ docker start laravel
 
 ## conf .env (laravel)
 
-mariadb's hostname = database
+mariadb's hostname = db
 
 
 
